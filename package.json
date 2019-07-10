@@ -1,0 +1,33 @@
+{
+  "name": "react-native-pull-to-refresh-custom",
+  "version": "0.0.1",
+  "description": " Custom pull to refresh Header supporting for React Native ScrollView/FlatList",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sophister/react-native-pull-to-refresh-custom.git"
+  },
+  "keywords": [
+    "React",
+    "Native",
+    "pull",
+    "to",
+    "refresh",
+    "custom",
+    "header"
+  ],
+  "author": "Jesse",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sophister/react-native-pull-to-refresh-custom/issues"
+  },
+  "homepage": "https://github.com/sophister/react-native-pull-to-refresh-custom#readme",
+  "devDependencies": {
+    "@types/react": "^16.8.23",
+    "@types/react-native": "^0.57.65",
+    "typescript": "^3.5.3"
+  }
+}
