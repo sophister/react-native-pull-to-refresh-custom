@@ -1,10 +1,21 @@
 {
   "name": "react-native-pull-to-refresh-custom",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": " Custom pull to refresh Header supporting for React Native ScrollView/FlatList",
-  "main": "index.js",
+  "main": "lib/PullToRefresh.js",
+  "types": "lib/PullToRefresh.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "src",
+    "lib",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",

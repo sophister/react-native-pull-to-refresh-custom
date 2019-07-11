@@ -26,7 +26,7 @@ export interface PullToRefreshHeaderProps {
     refreshing: boolean;
 }
 
-interface Props {
+export interface Props {
     // 容器样式
     style: ViewStyle;
     // 下拉刷新的header组件类
