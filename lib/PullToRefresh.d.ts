@@ -13,9 +13,9 @@ export interface Props {
     style: ViewStyle;
     HeaderComponent: ComponentType<PullToRefreshHeaderProps & RefAttributes<any>>;
     headerHeight: number;
-    refreshing: boolean;
     refreshTriggerHeight?: number;
     refreshingHoldHeight?: number;
+    refreshing: boolean;
     onRefresh: () => void;
     children: JSX.Element;
     topPullThreshold: number;
