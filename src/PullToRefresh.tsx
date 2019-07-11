@@ -33,12 +33,12 @@ export interface Props {
     HeaderComponent: ComponentType<PullToRefreshHeaderProps & RefAttributes<any>>;
     // Header 组件的高度，也是触发刷新的下拉距离
     headerHeight: number;
-    // 当前是否正在下拉刷新请求数据中
-    refreshing: boolean;
     // 下拉过程中，可以触发刷新的下拉距离。不穿，则默认等于 headerHeight
     refreshTriggerHeight?: number;
     // 正在刷新时，容器保持的顶部距离，如果用户不传，则默认等于 headerHeight
     refreshingHoldHeight?: number;
+    // 当前是否正在下拉刷新请求数据中
+    refreshing: boolean;
     // 下拉刷新达到阈值时，回调父级
     onRefresh: () => void;
     // 子组件，只能是  ScrollView/FlatList 等
