@@ -50,6 +50,7 @@ export interface Props {
 interface State {
     // 容器顶部的偏移距离
     containerTop: Animated.Value;
+    scrollEnabled: boolean;
 }
 
 const styles = {
@@ -79,12 +80,17 @@ export default class PullToRefresh extends Component<Props, State> {
     // header 组件的引用
     headerRef: any = null;
 
+    // inner scroll ref
+    scrollRef: any = null;
+
     constructor(props: Props) {
         super(props);
 
         this.state = {
             // 容器偏离顶部的距离
             containerTop: new Animated.Value(0),
+            // 是否允许内部scrollview滚动
+            scrollEnabled: false,
         };
 
         this.state.containerTop.addListener(this.containerTopChange);
@@ -96,18 +102,39 @@ export default class PullToRefresh extends Component<Props, State> {
         this.onPanResponderMove = this.onPanResponderMove.bind(this);
         this.onPanResponderRelease = this.onPanResponderRelease.bind(this);
         this.onPanResponderTerminate = this.onPanResponderTerminate.bind(this);
+        this.onResponderTerminationRequest = this.onResponderTerminationRequest.bind(this);
 
         this._panResponder = PanResponder.create({
             // onStartShouldSetPanResponder: this.onStartShouldSetResponder,
-            onMoveShouldSetPanResponder: this.onMoveShouldSetResponder,
+            onMoveShouldSetPanResponderCapture: this.onMoveShouldSetResponder,
+            // onMoveShouldSetPanResponder: this.onMoveShouldSetResponder,
             onPanResponderGrant: this.onResponderGrant,
             onPanResponderReject: this.onResponderReject,
             onPanResponderMove: this.onPanResponderMove,
             onPanResponderRelease: this.onPanResponderRelease,
-            onPanResponderTerminationRequest: (evt, gestureState) => { console.log('onPanResponderTerminationRequest'); return true;},
+            onPanResponderTerminationRequest: this.onResponderTerminationRequest,
             onPanResponderTerminate: this.onPanResponderTerminate,
+            onShouldBlockNativeResponder: (evt, gestureState) => {
+                // Returns whether this component should block native components from becoming the JS
+                // responder. Returns true by default. Is currently only supported on android.
+                return true;
+              },
         });
     }
+
+    updateInnerScrollRef = (ref: any) => {
+        console.log('====== updateInnerScrollRef ', ref && ref.scrollToOffset);
+        this.scrollRef = ref;
+    };
+
+    // updateInnerScrollState(enabled: boolean) {
+    //     if (this.scrollRef) {
+    //         console.log('====== innerScroll ', enabled);
+    //         this.scrollRef.setNativeProps({
+    //             scrollEnabled: enabled,
+    //         });
+    //     }
+    // }
 
     // onStartShouldSetResponder(event, gestureState) {
     //     console.log('onStartShouldSetResponder', gestureState);
@@ -119,23 +146,44 @@ export default class PullToRefresh extends Component<Props, State> {
             // 正在刷新中，不接受再次下拉
             return false;
         }
+        return !this.state.scrollEnabled;
         if (this.innerScrollTop <= this.props.topPullThreshold && gestureState.dy > 0) {
+            console.log(`====== moveShouldSetResponder  true`);
             return true;
         }
+        console.log(`====== moveShouldSetResponder  false`, this.innerScrollTop, gestureState.dy);
         return false;
     }
 
     onResponderGrant(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
-        
+        console.log(`====== grant`);
     }
 
     onResponderReject(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
-        
+        console.log(`====== reject`);
     }
 
     onPanResponderMove(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
-        const dy = Math.max(0, gestureState.dy);
-        this.state.containerTop.setValue(dy);
+        if (gestureState.dy >= 0) {
+            // const dy = Math.max(0, gestureState.dy);
+            this.state.containerTop.setValue(gestureState.dy);
+        } else {
+            if (this.scrollRef) {
+                if (typeof this.scrollRef.scrollToOffset === 'function') {
+                    // inner is FlatList
+                    this.scrollRef.scrollToOffset({
+                        offset: -gestureState.dy,
+                        animated: true,
+                    });
+                } else if(typeof this.scrollRef.scrollTo === 'function') {
+                    // inner is ScrollView
+                    this.scrollRef.scrollTo({
+                        y: -gestureState.dy,
+                        animated: true,
+                    });
+                }
+            }
+        }
     }
 
     onPanResponderRelease(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
@@ -148,10 +196,18 @@ export default class PullToRefresh extends Component<Props, State> {
             // 没到刷新的位置，回退到顶部
             this._resetContainerPosition();
         }
+        this.checkScroll();
+    }
+
+    onResponderTerminationRequest(event: GestureResponderEvent): boolean {
+        console.log(`====== terminate request`);
+        return false;
     }
 
     onPanResponderTerminate(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
+        console.log(`====== terminate`, this.innerScrollTop, gestureState.dy, gestureState.dy);
         this._resetContainerPosition();
+        this.checkScroll();
     }
 
     _resetContainerPosition() {
@@ -176,6 +232,26 @@ export default class PullToRefresh extends Component<Props, State> {
     innerScrollCallback = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         this.innerScrollTop = event.nativeEvent.contentOffset.y;
     };
+
+    checkScroll = () => {
+        if (this.isInnerScrollTop()) {
+            if (this.state.scrollEnabled) {
+                this.setState({
+                    scrollEnabled: false,
+                });
+            }
+        } else {
+            if (!this.state.scrollEnabled) {
+                this.setState({
+                    scrollEnabled: true,
+                });
+            }
+        }
+    };
+
+    isInnerScrollTop() {
+        return this.innerScrollTop <= this.props.topPullThreshold;
+    }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>) {
         if (!prevProps.refreshing && this.props.refreshing) {
@@ -228,6 +304,9 @@ export default class PullToRefresh extends Component<Props, State> {
             onScroll: this.innerScrollCallback,
             bounces: false,
             alwaysBounceVertical: false,
+            scrollEnabled: this.state.scrollEnabled,
+            ref: this.updateInnerScrollRef,
+            onScrollEndDrag: this.checkScroll,
         });
         return (
             <View
