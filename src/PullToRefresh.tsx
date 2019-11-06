@@ -168,6 +168,7 @@ export default class PullToRefresh extends Component<Props, State> {
             // const dy = Math.max(0, gestureState.dy);
             this.state.containerTop.setValue(gestureState.dy);
         } else {
+            this.state.containerTop.setValue(0);
             if (this.scrollRef) {
                 if (typeof this.scrollRef.scrollToOffset === 'function') {
                     // inner is FlatList
