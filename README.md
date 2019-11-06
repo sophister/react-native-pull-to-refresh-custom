@@ -20,7 +20,7 @@ npm i react-native-pull-to-refresh-custom
 
 ## Usage
 
-**Notice:** It is only tested with `react-native@0.59.3`.
+**Notice:** It is only tested with `react-native@0.59.3` and `react-native@0.61.2`.
 
 `PullToRefresh` component can ONLY accept a **single** child, which must be one of `ScrollView`, `FlatList`. (I've only tested it with these two components. Theoretically, it *should* work with other **Scrollable** components such as `SectionList`).
 
