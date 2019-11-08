@@ -123,7 +123,7 @@ export default class PullToRefresh extends Component<Props, State> {
     }
 
     updateInnerScrollRef = (ref: any) => {
-        console.log('====== updateInnerScrollRef ', ref && ref.scrollToOffset);
+        // console.log('====== updateInnerScrollRef ', ref && ref.scrollToOffset);
         this.scrollRef = ref;
     };
 
@@ -156,11 +156,11 @@ export default class PullToRefresh extends Component<Props, State> {
     }
 
     onResponderGrant(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
-        console.log(`====== grant`);
+        // console.log(`====== grant`);
     }
 
     onResponderReject(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
-        console.log(`====== reject`);
+        // console.log(`====== reject`);
     }
 
     onPanResponderMove(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
@@ -201,12 +201,12 @@ export default class PullToRefresh extends Component<Props, State> {
     }
 
     onResponderTerminationRequest(event: GestureResponderEvent): boolean {
-        console.log(`====== terminate request`);
+        // console.log(`====== terminate request`);
         return false;
     }
 
     onPanResponderTerminate(event: GestureResponderEvent, gestureState: PanResponderGestureState) {
-        console.log(`====== terminate`, this.innerScrollTop, gestureState.dy, gestureState.dy);
+        // console.log(`====== terminate`, this.innerScrollTop, gestureState.dy, gestureState.dy);
         this._resetContainerPosition();
         this.checkScroll();
     }
@@ -232,6 +232,7 @@ export default class PullToRefresh extends Component<Props, State> {
 
     innerScrollCallback = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         this.innerScrollTop = event.nativeEvent.contentOffset.y;
+        this.checkScroll();
     };
 
     checkScroll = () => {
@@ -307,7 +308,6 @@ export default class PullToRefresh extends Component<Props, State> {
             alwaysBounceVertical: false,
             scrollEnabled: this.state.scrollEnabled,
             ref: this.updateInnerScrollRef,
-            onScrollEndDrag: this.checkScroll,
         });
         return (
             <View
